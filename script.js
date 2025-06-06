@@ -34,6 +34,8 @@ fotoBtn.onclick = () => {
       }
 
       const imgData = canvas.toDataURL("image/png");
+
+      // Mostrar imagem na galeria
       const img = new Image();
       img.src = imgData;
       img.style.cursor = "pointer";
@@ -43,15 +45,27 @@ fotoBtn.onclick = () => {
       };
       galeria.appendChild(img);
 
+      // Limpar QR e gerar novo
       qrDiv.innerHTML = "";
-      const downloadLink = document.createElement("a");
-      downloadLink.href = imgData;
-      downloadLink.download = "foto.png";
-      new QRCode(downloadLink, {
+
+      const qrContainer = document.createElement("div");
+      qrDiv.appendChild(qrContainer);
+
+      new QRCode(qrContainer, {
         text: imgData,
         width: 128,
         height: 128
       });
+
+      const downloadLink = document.createElement("a");
+      downloadLink.href = imgData;
+      downloadLink.download = "foto.png";
+      downloadLink.innerText = "📥 Baixar Foto";
+      downloadLink.style.display = "block";
+      downloadLink.style.marginTop = "10px";
+      downloadLink.style.textAlign = "center";
+      downloadLink.style.color = "#000";
+      downloadLink.style.fontWeight = "bold";
       qrDiv.appendChild(downloadLink);
 
     } else {
