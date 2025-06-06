@@ -8,6 +8,7 @@ const galeria = document.getElementById("galeria");
 const qrDiv = document.getElementById("qrDownload");
 const moldura = document.getElementById("moldura");
 
+// Iniciar a câmera
 navigator.mediaDevices.getUserMedia({ video: true })
   .then(stream => {
     video.srcObject = stream;
@@ -38,6 +39,7 @@ fotoBtn.onclick = () => {
 
       const imgData = canvas.toDataURL("image/png");
 
+      // Mostrar imagem na galeria
       const img = new Image();
       img.src = imgData;
       img.style.cursor = "pointer";
@@ -47,38 +49,32 @@ fotoBtn.onclick = () => {
       };
       galeria.appendChild(img);
 
-      // limpar o QR e gerar novo
+      // Limpar e gerar novo QR Code
       qrDiv.innerHTML = "";
 
-      if (typeof QRCode !== "undefined") {
-        try {
-          const qrContainer = document.createElement("div");
-          qrDiv.appendChild(qrContainer);
+      try {
+        const qrContainer = document.createElement("div");
+        qrContainer.style.marginBottom = "10px";
+        qrDiv.appendChild(qrContainer);
 
-          new QRCode(qrContainer, {
-            text: imgData,
-            width: 128,
-            height: 128
-          });
+        new QRCode(qrContainer, {
+          text: imgData,
+          width: 128,
+          height: 128
+        });
 
-          const downloadLink = document.createElement("a");
-          downloadLink.href = imgData;
-          downloadLink.download = "foto.png";
-          downloadLink.innerText = "📥 Baixar Foto";
-          downloadLink.style.display = "block";
-          downloadLink.style.marginTop = "10px";
-          downloadLink.style.textAlign = "center";
-          downloadLink.style.color = "#000";
-          downloadLink.style.fontWeight = "bold";
-          qrDiv.appendChild(downloadLink);
-
-        } catch (error) {
-          console.error("Erro ao gerar QRCode:", error);
-          qrDiv.innerText = "Erro ao gerar QRCode.";
-          qrDiv.style.color = "red";
-        }
-      } else {
-        console.error("Biblioteca QRCode não carregada.");
+        const downloadLink = document.createElement("a");
+        downloadLink.href = imgData;
+        downloadLink.download = "foto.png";
+        downloadLink.innerText = "📥 Baixar Foto";
+        downloadLink.style.display = "block";
+        downloadLink.style.marginTop = "10px";
+        downloadLink.style.textAlign = "center";
+        downloadLink.style.color = "#000";
+        downloadLink.style.fontWeight = "bold";
+        qrDiv.appendChild(downloadLink);
+      } catch (error) {
+        console.error("Erro ao gerar QRCode:", error);
         qrDiv.innerText = "Erro ao gerar QRCode.";
         qrDiv.style.color = "red";
       }
