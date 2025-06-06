@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -26,6 +25,7 @@
     <div id="contador"></div>
   </div>
 
+  <!-- Área onde o QRCode será inserido -->
   <div class="qr-download" id="qrDownload" style="margin-top: 20px;"></div>
 
   <h3>Galeria de Fotos</h3>
@@ -35,8 +35,8 @@
   <footer>© 2025 - Foto Show Fest</footer>
   <audio id="beep" src="beep.mp3" preload="auto"></audio>
 
-  <!-- Correção final: biblioteca QRCode da CDN -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <!-- CORRIGIDO: Uso da biblioteca QRCode pela CDN confiável -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
