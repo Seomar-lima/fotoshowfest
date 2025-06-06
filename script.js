@@ -38,6 +38,11 @@ fotoBtn.onclick = () => {
       const imgData = canvas.toDataURL("image/png");
       const img = new Image();
       img.src = imgData;
+      img.style.cursor = "pointer";
+      img.onclick = () => {
+        const novaJanela = window.open();
+        novaJanela.document.write(`<img src="${imgData}" style="width: 100%">`);
+      };
       galeria.appendChild(img);
 
       qrDiv.innerHTML = "";
