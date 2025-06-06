@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -9,6 +10,7 @@
 <body>
   <h1>Foto Show Fest</h1>
   <h2>15 anos da Geovanna</h2>
+
   <!-- INÍCIO: BLOCO CORRIGIDO DA MOLDURA -->
   <div id="preview-container" style="position: relative; display: inline-block;">
     <video id="camera" autoplay playsinline style="width: 100%; border-radius: 15px;"></video>
@@ -17,20 +19,25 @@
     <canvas id="canvas" style="display: none;"></canvas>
   </div>
   <!-- FIM: BLOCO CORRIGIDO DA MOLDURA -->
+
   <div class="controls">
     <button id="foto">📸 Tirar Foto</button>
     <button id="bumerangue">🎞️ Gravar Bumerangue</button>
     <div id="contador"></div>
   </div>
-  <div class="qr-download" id="qrDownload"></div>
+
+  <!-- QR code será inserido aqui -->
+  <div class="qr-download" id="qrDownload" style="margin-top: 20px;"></div>
+
   <h3>Galeria de Fotos</h3>
   <div id="galeria" class="galeria"></div>
   <img src="galeria.png" alt="galeria" id="galeria-icon"/>
+
   <footer>© 2025 - Foto Show Fest</footer>
   <audio id="beep" src="beep.mp3" preload="auto"></audio>
 
-  <!-- Correção: biblioteca QR Code vinda da CDN -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <!-- Corrigido: usando arquivo local do QRCode -->
+  <script src="qrcode.min.js"></script>
   <script src="script.js"></script>
 </body>
-</html>
+</html
