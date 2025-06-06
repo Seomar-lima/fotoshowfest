@@ -90,3 +90,16 @@ fotoBtn.onclick = () => {
 bumerangueBtn.onclick = () => {
   alert("Gravação de bumerangue ainda em desenvolvimento.");
 };
+
+#qrDownload {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+}
+
+#qrDownload canvas {
+  background: white;
+  padding: 8px;
+  border-radius: 10px;
+}
