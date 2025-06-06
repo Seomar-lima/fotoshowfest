@@ -50,29 +50,35 @@ fotoBtn.onclick = () => {
       // limpar o QR e gerar novo
       qrDiv.innerHTML = "";
 
-      try {
-        const qrContainer = document.createElement("div");
-        qrDiv.appendChild(qrContainer);
+      if (typeof QRCode !== "undefined") {
+        try {
+          const qrContainer = document.createElement("div");
+          qrDiv.appendChild(qrContainer);
 
-        new QRCode(qrContainer, {
-          text: imgData,
-          width: 128,
-          height: 128
-        });
+          new QRCode(qrContainer, {
+            text: imgData,
+            width: 128,
+            height: 128
+          });
 
-        const downloadLink = document.createElement("a");
-        downloadLink.href = imgData;
-        downloadLink.download = "foto.png";
-        downloadLink.innerText = "📥 Baixar Foto";
-        downloadLink.style.display = "block";
-        downloadLink.style.marginTop = "10px";
-        downloadLink.style.textAlign = "center";
-        downloadLink.style.color = "#000";
-        downloadLink.style.fontWeight = "bold";
-        qrDiv.appendChild(downloadLink);
+          const downloadLink = document.createElement("a");
+          downloadLink.href = imgData;
+          downloadLink.download = "foto.png";
+          downloadLink.innerText = "📥 Baixar Foto";
+          downloadLink.style.display = "block";
+          downloadLink.style.marginTop = "10px";
+          downloadLink.style.textAlign = "center";
+          downloadLink.style.color = "#000";
+          downloadLink.style.fontWeight = "bold";
+          qrDiv.appendChild(downloadLink);
 
-      } catch (error) {
-        console.error("Erro ao gerar QRCode:", error);
+        } catch (error) {
+          console.error("Erro ao gerar QRCode:", error);
+          qrDiv.innerText = "Erro ao gerar QRCode.";
+          qrDiv.style.color = "red";
+        }
+      } else {
+        console.error("Biblioteca QRCode não carregada.");
         qrDiv.innerText = "Erro ao gerar QRCode.";
         qrDiv.style.color = "red";
       }
