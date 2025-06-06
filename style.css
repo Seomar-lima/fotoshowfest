@@ -92,3 +92,11 @@ footer {
   height: auto;
   z-index: 20;
 }
+
+.qr-download canvas {
+  display: block;
+  margin: 10px auto;
+  background-color: white;
+  padding: 10px;
+  border-radius: 8px;
+}
