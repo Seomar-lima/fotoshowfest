@@ -8,7 +8,6 @@ const galeria = document.getElementById("galeria");
 const qrDiv = document.getElementById("qrDownload");
 const moldura = document.getElementById("moldura");
 
-// Iniciar a câmera
 navigator.mediaDevices.getUserMedia({ video: true })
   .then(stream => {
     video.srcObject = stream;
@@ -49,19 +48,22 @@ fotoBtn.onclick = () => {
       };
       galeria.appendChild(img);
 
-      // Limpar e gerar novo QR Code
-      qrDiv.innerHTML = "";
-
+      // Persistir QR code e download
       try {
+        qrDiv.innerHTML = ""; // limpar anterior
+
         const qrContainer = document.createElement("div");
-        qrContainer.style.marginBottom = "10px";
+        qrContainer.id = "qrcode-container";
         qrDiv.appendChild(qrContainer);
 
-        new QRCode(qrContainer, {
-          text: imgData,
-          width: 128,
-          height: 128
-        });
+        // Evitar conflitos em celulares com delays
+        setTimeout(() => {
+          new QRCode(qrContainer, {
+            text: imgData,
+            width: 128,
+            height: 128
+          });
+        }, 300); // atraso para garantir imagem processada
 
         const downloadLink = document.createElement("a");
         downloadLink.href = imgData;
@@ -75,8 +77,7 @@ fotoBtn.onclick = () => {
         qrDiv.appendChild(downloadLink);
       } catch (error) {
         console.error("Erro ao gerar QRCode:", error);
-        qrDiv.innerText = "Erro ao gerar QRCode.";
-        qrDiv.style.color = "red";
+        qrDiv.innerHTML = "<span style='color: red;'>Erro ao gerar QRCode.</span>";
       }
 
     } else {
