@@ -23,14 +23,12 @@ fotoBtn.onclick = () => {
       contador.innerText = "";
       beep.play();
 
-      // Ajustar canvas para o tamanho do vídeo
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
 
       const ctx = canvas.getContext("2d");
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-      // Se a moldura estiver carregada, desenhar por cima
       if (moldura.complete) {
         ctx.drawImage(moldura, 0, 0, canvas.width, canvas.height);
       }
@@ -46,11 +44,15 @@ fotoBtn.onclick = () => {
       galeria.appendChild(img);
 
       qrDiv.innerHTML = "";
-      new QRCode(qrDiv, {
+      const downloadLink = document.createElement("a");
+      downloadLink.href = imgData;
+      downloadLink.download = "foto.png";
+      new QRCode(downloadLink, {
         text: imgData,
         width: 128,
         height: 128
       });
+      qrDiv.appendChild(downloadLink);
 
     } else {
       beep.play();
