@@ -8,12 +8,11 @@ const galeria = document.getElementById("galeria");
 const qrDiv = document.getElementById("qrDownload");
 const moldura = document.getElementById("moldura");
 
+// Ativa câmera
 navigator.mediaDevices.getUserMedia({ video: true })
   .then(stream => {
     video.srcObject = stream;
-    video.onloadedmetadata = () => {
-      video.play();
-    };
+    video.play();
   })
   .catch(err => {
     console.error("Erro ao acessar a câmera:", err);
@@ -24,26 +23,18 @@ fotoBtn.onclick = () => {
   contador.innerText = count;
   const interval = setInterval(() => {
     count--;
+    contador.innerText = count;
+    beep.play();
+
     if (count === 0) {
       clearInterval(interval);
       contador.innerText = "";
-      beep.play();
-
-      // Aguarda o vídeo estar pronto antes de capturar
-      if (video.readyState >= 2) {
-        tirarFoto();
-      } else {
-        video.oncanplay = () => tirarFoto();
-      }
-
-    } else {
-      beep.play();
-      contador.innerText = count;
+      capturarFoto();
     }
   }, 1000);
 };
 
-function tirarFoto() {
+function capturarFoto() {
   canvas.width = video.videoWidth;
   canvas.height = video.videoHeight;
 
@@ -54,47 +45,49 @@ function tirarFoto() {
     ctx.drawImage(moldura, 0, 0, canvas.width, canvas.height);
   }
 
-  const imgData = canvas.toDataURL("image/png");
+  setTimeout(() => {
+    const imgData = canvas.toDataURL("image/png");
 
-  const img = new Image();
-  img.src = imgData;
-  img.style.cursor = "pointer";
-  img.onclick = () => {
-    const novaJanela = window.open();
-    novaJanela.document.write(`<img src="${imgData}" style="width: 100%">`);
-  };
-  galeria.appendChild(img);
+    // Adiciona na galeria
+    const img = new Image();
+    img.src = imgData;
+    img.style.cursor = "pointer";
+    img.onclick = () => {
+      const novaJanela = window.open();
+      novaJanela.document.write(`<img src="${imgData}" style="width: 100%">`);
+    };
+    galeria.appendChild(img);
 
-  qrDiv.innerHTML = "";
+    // Gera QR Code
+    qrDiv.innerHTML = "";
+    try {
+      const qrContainer = document.createElement("div");
+      qrContainer.style.margin = "0 auto";
+      qrContainer.style.width = "fit-content";
+      qrDiv.appendChild(qrContainer);
 
-  try {
-    const qrContainer = document.createElement("div");
-    qrContainer.style.margin = "0 auto";
-    qrContainer.style.width = "fit-content";
-    qrDiv.appendChild(qrContainer);
+      new QRCode(qrContainer, {
+        text: imgData,
+        width: 128,
+        height: 128
+      });
 
-    new QRCode(qrContainer, {
-      text: imgData,
-      width: 128,
-      height: 128
-    });
+      const link = document.createElement("a");
+      link.href = imgData;
+      link.download = "foto.png";
+      link.innerText = "📥 Baixar Foto";
+      link.style.display = "block";
+      link.style.textAlign = "center";
+      link.style.marginTop = "10px";
+      link.style.fontWeight = "bold";
+      qrDiv.appendChild(link);
 
-    const downloadLink = document.createElement("a");
-    downloadLink.href = imgData;
-    downloadLink.download = "foto.png";
-    downloadLink.innerText = "📥 Baixar Foto";
-    downloadLink.style.display = "block";
-    downloadLink.style.marginTop = "10px";
-    downloadLink.style.textAlign = "center";
-    downloadLink.style.color = "#000";
-    downloadLink.style.fontWeight = "bold";
-    qrDiv.appendChild(downloadLink);
-
-  } catch (error) {
-    console.error("Erro ao gerar QRCode:", error);
-    qrDiv.innerText = "Erro ao gerar QRCode.";
-    qrDiv.style.color = "red";
-  }
+    } catch (erro) {
+      qrDiv.innerText = "Erro ao gerar QRCode.";
+      qrDiv.style.color = "red";
+      console.error("Erro ao gerar QRCode:", erro);
+    }
+  }, 200); // Tempo suficiente para o canvas processar no mobile
 }
 
 bumerangueBtn.onclick = () => {
