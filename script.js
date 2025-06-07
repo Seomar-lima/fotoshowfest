@@ -33,12 +33,6 @@ fotoBtn.onclick = () => {
 };
 
 function capturarFoto() {
-  if (video.videoWidth === 0 || video.videoHeight === 0) {
-    console.warn("Câmera não pronta. Aguardando...");
-    setTimeout(capturarFoto, 300);
-    return;
-  }
-
   canvas.width = video.videoWidth;
   canvas.height = video.videoHeight;
   const ctx = canvas.getContext("2d");
@@ -48,23 +42,23 @@ function capturarFoto() {
     ctx.drawImage(moldura, 0, 0, canvas.width, canvas.height);
   }
 
-  // Converte o canvas para blob (para gerar URL real)
-  canvas.toBlob(blob => {
-    if (!blob) {
-      qrDiv.innerText = "Erro ao gerar QRCode.";
+  // Esperar brevemente para garantir que a imagem seja processada
+  setTimeout(() => {
+    const imgData = canvas.toDataURL("image/png");
+
+    if (!imgData || imgData.length < 100 || imgData.startsWith("data:,")) {
+      qrDiv.innerHTML = "Erro ao gerar QRCode.";
       qrDiv.style.color = "red";
+      console.error("Imagem inválida ou não gerada.");
       return;
     }
 
-    const imgURL = URL.createObjectURL(blob);
-
-    // Mostrar imagem na galeria
     const img = new Image();
-    img.src = imgURL;
+    img.src = imgData;
     img.style.cursor = "pointer";
     img.onclick = () => {
       const novaJanela = window.open();
-      novaJanela.document.write(`<img src="${imgURL}" style="width: 100%">`);
+      novaJanela.document.write(`<img src="${imgData}" style="width: 100%">`);
     };
     galeria.appendChild(img);
 
@@ -75,13 +69,13 @@ function capturarFoto() {
       qrDiv.appendChild(qrContainer);
 
       new QRCode(qrContainer, {
-        text: imgURL,
+        text: imgData,
         width: 128,
         height: 128
       });
 
       const link = document.createElement("a");
-      link.href = imgURL;
+      link.href = imgData;
       link.download = "foto.png";
       link.innerText = "📥 Baixar Foto";
       link.style.display = "block";
@@ -94,7 +88,7 @@ function capturarFoto() {
       qrDiv.innerText = "Erro ao gerar QRCode.";
       qrDiv.style.color = "red";
     }
-  }, "image/png");
+  }, 300);
 }
 
 bumerangueBtn.onclick = () => {
