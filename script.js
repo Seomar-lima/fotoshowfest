@@ -33,6 +33,13 @@ fotoBtn.onclick = () => {
 };
 
 function capturarFoto() {
+  // Verifica se o vídeo está carregado antes de capturar
+  if (video.videoWidth === 0 || video.videoHeight === 0) {
+    console.warn("Câmera ainda não pronta. Tentando novamente em 300ms...");
+    setTimeout(capturarFoto, 300);
+    return;
+  }
+
   canvas.width = video.videoWidth;
   canvas.height = video.videoHeight;
   const ctx = canvas.getContext("2d");
@@ -42,54 +49,50 @@ function capturarFoto() {
     ctx.drawImage(moldura, 0, 0, canvas.width, canvas.height);
   }
 
-  // Esperar brevemente para garantir que a imagem seja processada no canvas
-  setTimeout(() => {
-    const imgData = canvas.toDataURL("image/png");
+  const imgData = canvas.toDataURL("image/png");
 
-    // Verificar se a imagem foi gerada corretamente
-    if (!imgData || imgData.length < 50 || imgData === "data:,") {
-      qrDiv.innerHTML = "Erro ao gerar QRCode.";
-      qrDiv.style.color = "red";
-      console.error("Imagem inválida no canvas.");
-      return;
-    }
+  if (!imgData || imgData.length < 50 || imgData === "data:,") {
+    qrDiv.innerHTML = "Erro ao gerar QRCode.";
+    qrDiv.style.color = "red";
+    console.error("Imagem inválida no canvas.");
+    return;
+  }
 
-    const img = new Image();
-    img.src = imgData;
-    img.style.cursor = "pointer";
-    img.onclick = () => {
-      const novaJanela = window.open();
-      novaJanela.document.write(`<img src="${imgData}" style="width: 100%">`);
-    };
-    galeria.appendChild(img);
+  const img = new Image();
+  img.src = imgData;
+  img.style.cursor = "pointer";
+  img.onclick = () => {
+    const novaJanela = window.open();
+    novaJanela.document.write(`<img src="${imgData}" style="width: 100%">`);
+  };
+  galeria.appendChild(img);
 
-    qrDiv.innerHTML = "";
-    try {
-      const qrContainer = document.createElement("div");
-      qrContainer.style.margin = "0 auto";
-      qrDiv.appendChild(qrContainer);
+  qrDiv.innerHTML = "";
+  try {
+    const qrContainer = document.createElement("div");
+    qrContainer.style.margin = "0 auto";
+    qrDiv.appendChild(qrContainer);
 
-      new QRCode(qrContainer, {
-        text: imgData,
-        width: 128,
-        height: 128
-      });
+    new QRCode(qrContainer, {
+      text: imgData,
+      width: 128,
+      height: 128
+    });
 
-      const link = document.createElement("a");
-      link.href = imgData;
-      link.download = "foto.png";
-      link.innerText = "📥 Baixar Foto";
-      link.style.display = "block";
-      link.style.textAlign = "center";
-      link.style.marginTop = "10px";
-      link.style.fontWeight = "bold";
-      qrDiv.appendChild(link);
-    } catch (e) {
-      console.error("Erro ao gerar QRCode:", e);
-      qrDiv.innerText = "Erro ao gerar QRCode.";
-      qrDiv.style.color = "red";
-    }
-  }, 300);
+    const link = document.createElement("a");
+    link.href = imgData;
+    link.download = "foto.png";
+    link.innerText = "📥 Baixar Foto";
+    link.style.display = "block";
+    link.style.textAlign = "center";
+    link.style.marginTop = "10px";
+    link.style.fontWeight = "bold";
+    qrDiv.appendChild(link);
+  } catch (e) {
+    console.error("Erro ao gerar QRCode:", e);
+    qrDiv.innerText = "Erro ao gerar QRCode.";
+    qrDiv.style.color = "red";
+  }
 }
 
 bumerangueBtn.onclick = () => {
