@@ -8,6 +8,7 @@ const galeria = document.getElementById("galeria");
 const qrDiv = document.getElementById("qrDownload");
 const moldura = document.getElementById("moldura");
 
+// Inicia a câmera
 navigator.mediaDevices.getUserMedia({ video: true })
   .then(stream => {
     video.srcObject = stream;
@@ -17,6 +18,7 @@ navigator.mediaDevices.getUserMedia({ video: true })
     console.error("Erro ao acessar a câmera:", err);
   });
 
+// Evento para tirar a foto
 fotoBtn.onclick = () => {
   let count = 5;
   contador.innerText = count;
@@ -33,14 +35,9 @@ fotoBtn.onclick = () => {
 };
 
 function capturarFoto() {
-  if (video.videoWidth === 0 || video.videoHeight === 0) {
-    console.warn("Câmera não pronta. Aguardando...");
-    setTimeout(capturarFoto, 300);
-    return;
-  }
-
   canvas.width = video.videoWidth;
   canvas.height = video.videoHeight;
+
   const ctx = canvas.getContext("2d");
   ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
@@ -48,59 +45,60 @@ function capturarFoto() {
     ctx.drawImage(moldura, 0, 0, canvas.width, canvas.height);
   }
 
-  // Converte o canvas para blob (para gerar URL real)
-  canvas.toBlob(blob => {
-    if (!blob) {
-      qrDiv.innerText = "Erro ao gerar QRCode.";
+  setTimeout(() => {
+    const imgData = canvas.toDataURL("image/png");
+
+    if (!imgData || imgData.length < 50 || imgData === "data:,") {
+      qrDiv.innerHTML = "Erro ao gerar QRCode.";
       qrDiv.style.color = "red";
+      console.error("Imagem inválida no canvas.");
       return;
     }
 
-    const imgURL = URL.createObjectURL(blob);
-
-    // Mostrar imagem na galeria
+    // Adiciona à galeria
     const img = new Image();
-    img.src = imgURL;
+    img.src = imgData;
     img.style.cursor = "pointer";
     img.onclick = () => {
       const novaJanela = window.open();
-      novaJanela.document.write(`<img src="${imgURL}" style="width: 100%">`);
+      novaJanela.document.write(`<img src="${imgData}" style="width: 100%">`);
     };
     galeria.appendChild(img);
 
+    // Limpa QR anterior e cria novo
     qrDiv.innerHTML = "";
     try {
       const qrContainer = document.createElement("div");
       qrContainer.style.margin = "0 auto";
       qrDiv.appendChild(qrContainer);
 
-    const link = document.createElement("a");
-link.href = imgData;
-link.download = "foto.png";
-link.innerText = "📥 Baixar Foto";
+      // Cria link base64 para baixar a imagem
+      const downloadLink = document.createElement("a");
+      downloadLink.href = imgData;
+      downloadLink.download = "foto.png";
+      downloadLink.innerText = "📥 Baixar Foto";
+      downloadLink.style.display = "block";
+      downloadLink.style.textAlign = "center";
+      downloadLink.style.marginTop = "10px";
+      downloadLink.style.fontWeight = "bold";
 
-new QRCode(qrContainer, {
-  text: link.href,
-  width: 128,
-  height: 128
-});
-      const link = document.createElement("a");
-      link.href = imgURL;
-      link.download = "foto.png";
-      link.innerText = "📥 Baixar Foto";
-      link.style.display = "block";
-      link.style.textAlign = "center";
-      link.style.marginTop = "10px";
-      link.style.fontWeight = "bold";
-      qrDiv.appendChild(link);
+      // Gera QR code apontando para o link da imagem
+      new QRCode(qrContainer, {
+        text: downloadLink.href,
+        width: 128,
+        height: 128
+      });
+
+      qrDiv.appendChild(downloadLink);
     } catch (e) {
       console.error("Erro ao gerar QRCode:", e);
       qrDiv.innerText = "Erro ao gerar QRCode.";
       qrDiv.style.color = "red";
     }
-  }, "image/png");
+  }, 300);
 }
 
+// Alerta para botão de bumerangue
 bumerangueBtn.onclick = () => {
   alert("Gravação de bumerangue ainda em desenvolvimento.");
 };
