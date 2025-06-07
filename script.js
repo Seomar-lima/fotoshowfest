@@ -74,12 +74,16 @@ function capturarFoto() {
       qrContainer.style.margin = "0 auto";
       qrDiv.appendChild(qrContainer);
 
-      new QRCode(qrContainer, {
-        text: imgURL,
-        width: 128,
-        height: 128
-      });
+    const link = document.createElement("a");
+link.href = imgData;
+link.download = "foto.png";
+link.innerText = "📥 Baixar Foto";
 
+new QRCode(qrContainer, {
+  text: link.href,
+  width: 128,
+  height: 128
+});
       const link = document.createElement("a");
       link.href = imgURL;
       link.download = "foto.png";
