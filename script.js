@@ -11,6 +11,9 @@ const moldura = document.getElementById("moldura");
 navigator.mediaDevices.getUserMedia({ video: true })
   .then(stream => {
     video.srcObject = stream;
+    video.onloadedmetadata = () => {
+      video.play();
+    };
   })
   .catch(err => {
     console.error("Erro ao acessar a câmera:", err);
@@ -26,58 +29,11 @@ fotoBtn.onclick = () => {
       contador.innerText = "";
       beep.play();
 
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-
-      const ctx = canvas.getContext("2d");
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-      if (moldura.complete) {
-        ctx.drawImage(moldura, 0, 0, canvas.width, canvas.height);
-      }
-
-      const imgData = canvas.toDataURL("image/png");
-
-      // Mostrar imagem na galeria
-      const img = new Image();
-      img.src = imgData;
-      img.style.cursor = "pointer";
-      img.onclick = () => {
-        const novaJanela = window.open();
-        novaJanela.document.write(`<img src="${imgData}" style="width: 100%">`);
-      };
-      galeria.appendChild(img);
-
-      // Persistir QR code e download
-      try {
-        qrDiv.innerHTML = ""; // limpar anterior
-
-        const qrContainer = document.createElement("div");
-        qrContainer.id = "qrcode-container";
-        qrDiv.appendChild(qrContainer);
-
-        // Evitar conflitos em celulares com delays
-        setTimeout(() => {
-          new QRCode(qrContainer, {
-            text: imgData,
-            width: 128,
-            height: 128
-          });
-        }, 300); // atraso para garantir imagem processada
-
-        const downloadLink = document.createElement("a");
-        downloadLink.href = imgData;
-        downloadLink.download = "foto.png";
-        downloadLink.innerText = "📥 Baixar Foto";
-        downloadLink.style.display = "block";
-        downloadLink.style.marginTop = "10px";
-        downloadLink.style.textAlign = "center";
-        downloadLink.style.color = "#000";
-        downloadLink.style.fontWeight = "bold";
-        qrDiv.appendChild(downloadLink);
-      } catch (error) {
-        console.error("Erro ao gerar QRCode:", error);
-        qrDiv.innerHTML = "<span style='color: red;'>Erro ao gerar QRCode.</span>";
+      // Aguarda o vídeo estar pronto antes de capturar
+      if (video.readyState >= 2) {
+        tirarFoto();
+      } else {
+        video.oncanplay = () => tirarFoto();
       }
 
     } else {
@@ -87,7 +43,60 @@ fotoBtn.onclick = () => {
   }, 1000);
 };
 
+function tirarFoto() {
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+
+  const ctx = canvas.getContext("2d");
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+  if (moldura.complete) {
+    ctx.drawImage(moldura, 0, 0, canvas.width, canvas.height);
+  }
+
+  const imgData = canvas.toDataURL("image/png");
+
+  const img = new Image();
+  img.src = imgData;
+  img.style.cursor = "pointer";
+  img.onclick = () => {
+    const novaJanela = window.open();
+    novaJanela.document.write(`<img src="${imgData}" style="width: 100%">`);
+  };
+  galeria.appendChild(img);
+
+  qrDiv.innerHTML = "";
+
+  try {
+    const qrContainer = document.createElement("div");
+    qrContainer.style.margin = "0 auto";
+    qrContainer.style.width = "fit-content";
+    qrDiv.appendChild(qrContainer);
+
+    new QRCode(qrContainer, {
+      text: imgData,
+      width: 128,
+      height: 128
+    });
+
+    const downloadLink = document.createElement("a");
+    downloadLink.href = imgData;
+    downloadLink.download = "foto.png";
+    downloadLink.innerText = "📥 Baixar Foto";
+    downloadLink.style.display = "block";
+    downloadLink.style.marginTop = "10px";
+    downloadLink.style.textAlign = "center";
+    downloadLink.style.color = "#000";
+    downloadLink.style.fontWeight = "bold";
+    qrDiv.appendChild(downloadLink);
+
+  } catch (error) {
+    console.error("Erro ao gerar QRCode:", error);
+    qrDiv.innerText = "Erro ao gerar QRCode.";
+    qrDiv.style.color = "red";
+  }
+}
+
 bumerangueBtn.onclick = () => {
   alert("Gravação de bumerangue ainda em desenvolvimento.");
 };
-
