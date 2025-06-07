@@ -8,7 +8,6 @@ const galeria = document.getElementById("galeria");
 const qrDiv = document.getElementById("qrDownload");
 const moldura = document.getElementById("moldura");
 
-// Ativa câmera
 navigator.mediaDevices.getUserMedia({ video: true })
   .then(stream => {
     video.srcObject = stream;
@@ -25,7 +24,6 @@ fotoBtn.onclick = () => {
     count--;
     contador.innerText = count;
     beep.play();
-
     if (count === 0) {
       clearInterval(interval);
       contador.innerText = "";
@@ -37,18 +35,25 @@ fotoBtn.onclick = () => {
 function capturarFoto() {
   canvas.width = video.videoWidth;
   canvas.height = video.videoHeight;
-
   const ctx = canvas.getContext("2d");
   ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-  if (moldura.complete) {
+  if (moldura.complete && moldura.naturalHeight !== 0) {
     ctx.drawImage(moldura, 0, 0, canvas.width, canvas.height);
   }
 
+  // Esperar brevemente para garantir que a imagem seja processada no canvas
   setTimeout(() => {
     const imgData = canvas.toDataURL("image/png");
 
-    // Adiciona na galeria
+    // Verificar se a imagem foi gerada corretamente
+    if (!imgData || imgData.length < 50 || imgData === "data:,") {
+      qrDiv.innerHTML = "Erro ao gerar QRCode.";
+      qrDiv.style.color = "red";
+      console.error("Imagem inválida no canvas.");
+      return;
+    }
+
     const img = new Image();
     img.src = imgData;
     img.style.cursor = "pointer";
@@ -58,12 +63,10 @@ function capturarFoto() {
     };
     galeria.appendChild(img);
 
-    // Gera QR Code
     qrDiv.innerHTML = "";
     try {
       const qrContainer = document.createElement("div");
       qrContainer.style.margin = "0 auto";
-      qrContainer.style.width = "fit-content";
       qrDiv.appendChild(qrContainer);
 
       new QRCode(qrContainer, {
@@ -81,13 +84,12 @@ function capturarFoto() {
       link.style.marginTop = "10px";
       link.style.fontWeight = "bold";
       qrDiv.appendChild(link);
-
-    } catch (erro) {
+    } catch (e) {
+      console.error("Erro ao gerar QRCode:", e);
       qrDiv.innerText = "Erro ao gerar QRCode.";
       qrDiv.style.color = "red";
-      console.error("Erro ao gerar QRCode:", erro);
     }
-  }, 200); // Tempo suficiente para o canvas processar no mobile
+  }, 300);
 }
 
 bumerangueBtn.onclick = () => {
